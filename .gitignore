@@ -1,0 +1,5 @@
+getters.gen.go
+/go-getters
+bin/
+coverage.out
+coverage.html
