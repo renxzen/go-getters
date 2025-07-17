@@ -140,10 +140,10 @@ go-getters/
 │   │   └── generator.go
 │   ├── parser/              # Go source code parsing
 │   │   └── parser.go
-│   ├── codegen/             # Code generation logic
-│   │   └── generator.go
+│   ├── strutils/            # String utility functions
+│   │   └── strutils.go
 │   └── types/               # Shared data structures
-│       └── field.go
+│       └── types.go
 ├── test/                    # Test files and test data
 │   ├── generator_test.go
 │   ├── testdata/
@@ -158,45 +158,60 @@ go-getters/
 ### Prerequisites
 
 - Go 1.24.5 or later
-- Make (optional, for using Makefile targets)
+- Make
 
 ### Building
 
 ```bash
-# Build for current platform
+# Build the binary for the current platform
 make build
+```
 
-# Build for all platforms
-make build-all
+### Installation
 
-# Development build (includes formatting, vetting, testing)
-make dev
+```bash
+# Install the binary to your GOPATH
+make install
+
+# Uninstall the binary
+make uninstall
 ```
 
 ### Testing
 
 ```bash
-# Run tests
+# Run all tests with coverage
 make test
 
-# Run tests with coverage
-make test-coverage
+# Update golden test files
+make test/update
+```
 
-# Update golden files
-make test-update
+### Code Generation
+
+```bash
+# Run go generate to update examples using the installed binary
+make generate
+
+# Run go generate with a local build of the binary
+make generate/local
 ```
 
 ### Code Quality
 
 ```bash
-# Format code
-make fmt
+# Tidy go.mod and go.sum files
+make tidy
 
-# Vet code
-make vet
-
-# Lint code (requires golangci-lint)
+# Lint the project (requires golangci-lint)
 make lint
+```
+
+### Cleaning
+
+```bash
+# Clean build artifacts
+make clean
 ```
 
 ## Examples
@@ -280,27 +295,17 @@ The project uses golden file testing to ensure consistent output generation.
 
 - `test/generator_test.go` - Main test file with golden file tests
 - `test/testdata/` - Directory containing test input files and golden files
-  - `params.go` - Test struct definitions
+  - `structs.go` - Test struct definitions
   - `*.golden` - Golden files containing expected output
 
 ### Running Tests
 
 ```bash
-# Run all tests
+# Run all tests with coverage
 make test
-# or
-go test ./test
-
-# Run tests with coverage
-make test-coverage
 
 # Update golden files (when output changes are intentional)
-make test-update
-# or
-go test ./test -update
-
-# Clean golden files
-make clean-test
+make test/update
 ```
 
 ### Golden File Testing
@@ -311,11 +316,6 @@ Golden file testing compares the actual output of the generator against pre-stor
 2. **Simplifies maintenance** - Easy to update expected output when changes are intentional
 3. **Provides clear diffs** - Test failures show exactly what changed
 4. **Supports multiple scenarios** - Each test case can have its own golden file
-
-### Test Cases
-
-- `basic_params` - Tests getter generation for a single struct
-- `multiple_structs` - Tests getter generation for multiple structs
 
 ### Adding New Tests
 

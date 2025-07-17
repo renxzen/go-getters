@@ -84,6 +84,7 @@ func TestGenerateGetters(t *testing.T) {
 				t.Fatalf("Failed to read golden file %s: %v", goldenPath, err)
 			}
 
+			// TODO: implement diff viewing pkg
 			if !bytes.Equal(outBytes, expected) {
 				t.Errorf("Generated output doesn't match golden file %s", tt.goldenFile)
 				t.Errorf("Expected:\n%s", string(expected))
