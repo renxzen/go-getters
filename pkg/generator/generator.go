@@ -87,7 +87,8 @@ func (g *Generator) generateStructGetters(structInfo *types.StructInfo) {
 
 // generateFieldGetter generates a getter method for a single field.
 func (g *Generator) generateFieldGetter(structName string, field types.FieldInfo) {
-	getterPrefix := "Get" // TODO: make the prefix configurable
+	// TODO: make the prefix configurable
+	getterPrefix := "Get"
 	getterName := getterPrefix + strutils.Capitalize(field.Name)
 	zeroValue := field.GetZerovalue()
 
@@ -121,16 +122,12 @@ func (g *Generator) collectRequiredImports(structs map[string]*types.StructInfo,
 				continue
 			}
 
-			if field.RequiredImport == "" && field.RequiredExtraImport == "" {
+			if len(field.RequiredImports) == 0 {
 				continue
 			}
 
-			if importInfo, exists := importsMap[field.RequiredImport]; exists {
-				importSet[importInfo.Alias] = true
-			}
-
-			if field.IsMap {
-				if importInfo, exists := importsMap[field.RequiredExtraImport]; exists {
+			for _, imp := range field.RequiredImports {
+				if importInfo, exists := importsMap[imp]; exists {
 					importSet[importInfo.Alias] = true
 				}
 			}

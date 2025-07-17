@@ -20,15 +20,14 @@ type ImportInfo struct {
 }
 
 type FieldInfo struct {
-	Name           string // Field name
-	Type           string // Field type as string
-	UnderlyingType string // Underlying type for pointers
-	IsPointer      bool   // Whether the field is a pointer
-	IsExported     bool   // Whether the field is exported
-	IsSlice        bool   // Whether the field is a slice
-	IsMap          bool   // Whether the field is a map
-	RequiredImport string // Import alias for package-qualified types
-	RequiredExtraImport   string // Import alias for map key type
+	Name            string   // Field name
+	Type            string   // Field type as string
+	UnderlyingType  string   // Underlying type for pointers
+	IsPointer       bool     // Whether the field is a pointer
+	IsExported      bool     // Whether the field is exported
+	IsSlice         bool     // Whether the field is a slice
+	IsMap           bool     // Whether the field is a map
+	RequiredImports []string // Import aliases for package-qualified types. Can be more than one in case of maps.
 }
 
 func (f FieldInfo) IsPrimitive() bool {
@@ -78,6 +77,13 @@ func (f FieldInfo) GetZerovalue() string {
 		// This works for structs, interfaces, and other custom types
 		return fieldType + "{}"
 	}
+}
+
+func (f *FieldInfo) AddRequiredImport(alias string) {
+	if alias == "" {
+		return
+	}
+	f.RequiredImports = append(f.RequiredImports, alias)
 }
 
 // ShouldDereference returns true if this pointer field should be dereferenced in getters

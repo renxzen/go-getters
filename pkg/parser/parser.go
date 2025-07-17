@@ -109,8 +109,9 @@ func (p *Parser) parseFieldType(fieldName string, fieldType ast.Expr) types.Fiel
 		// Preserve other properties from the underlying type
 		fieldInfo.IsSlice = underlyingField.IsSlice
 		fieldInfo.IsMap = underlyingField.IsMap
-		fieldInfo.RequiredImport = underlyingField.RequiredImport
-		fieldInfo.RequiredExtraImport = underlyingField.RequiredExtraImport
+		for _, requiredImport := range underlyingField.RequiredImports {
+			fieldInfo.AddRequiredImport(requiredImport)
+		}
 	case *ast.Ident:
 		fieldInfo.Type = t.Name
 		fieldInfo.UnderlyingType = t.Name
@@ -119,7 +120,7 @@ func (p *Parser) parseFieldType(fieldName string, fieldType ast.Expr) types.Fiel
 		xType := p.parseExprType(t.X)
 		fieldInfo.Type = xType + "." + t.Sel.Name
 		fieldInfo.UnderlyingType = xType + "." + t.Sel.Name
-		fieldInfo.RequiredImport = xType
+		fieldInfo.AddRequiredImport(xType)
 	case *ast.ArrayType:
 		// Handle slices and arrays
 		elementType := p.parseExprType(t.Elt)
@@ -129,7 +130,7 @@ func (p *Parser) parseFieldType(fieldName string, fieldType ast.Expr) types.Fiel
 
 		// Recursively handle the element type
 		elementField := p.parseFieldType("", t.Elt)
-		fieldInfo.RequiredImport = elementField.RequiredImport
+		fieldInfo.RequiredImports = elementField.RequiredImports
 
 		// if Slices and Arrays need to be handled differently
 		// we need to check t.Len. if it is nil, it's a slice,
@@ -142,13 +143,13 @@ func (p *Parser) parseFieldType(fieldName string, fieldType ast.Expr) types.Fiel
 
 		// Recursively check for imports in map key and value types
 		keyField := p.parseFieldType("", t.Key)
-		if keyField.RequiredImport != "" {
-			fieldInfo.RequiredImport = keyField.RequiredImport
+		for _, requiredImport := range keyField.RequiredImports {
+			fieldInfo.AddRequiredImport(requiredImport)
 		}
 
 		valueField := p.parseFieldType("", t.Value)
-		if valueField.RequiredImport != "" {
-			fieldInfo.RequiredExtraImport = valueField.RequiredImport
+		for _, requiredImport := range valueField.RequiredImports {
+			fieldInfo.AddRequiredImport(requiredImport)
 		}
 	default:
 		// Handle other complex types
@@ -185,13 +186,13 @@ func (p *Parser) parseExprType(expr ast.Expr) string {
 // parseImports parses import declarations from an AST file and adds them to the imports map.
 func (p *Parser) parseImports(file *ast.File, imports map[string]*types.ImportInfo) {
 	for _, imp := range file.Imports {
-		importPath := imp.Path.Value[1 : len(imp.Path.Value)-1] // Remove quotes
+		// Remove quotes
+		importPath := imp.Path.Value[1 : len(imp.Path.Value)-1]
 
 		var (
 			alias     string
 			isAliased bool
 		)
-
 		if imp.Name != nil {
 			alias = imp.Name.Name
 			isAliased = true
