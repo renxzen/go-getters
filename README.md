@@ -320,7 +320,7 @@ Golden file testing compares the actual output of the generator against pre-stor
 ### Adding New Tests
 
 1. Add a new test case to the `tests` slice in `generator_test.go`
-2. Run `make test-update` to generate the golden file
+2. Run `make test/update` to generate the golden file
 3. Verify the generated output is correct
 4. Run `make test` to ensure the test passes
 
@@ -330,7 +330,7 @@ Golden file testing compares the actual output of the generator against pre-stor
 2. Create a feature branch
 3. Make your changes
 4. Add tests for new functionality
-5. Run `make dev` to ensure code quality
+5. Run `make lint` to ensure code quality
 6. Submit a pull request
 
 ## License
