@@ -6,7 +6,7 @@ import (
 	"go/format"
 	"sort"
 
-	"github.com/renxzen/go-getters/pkg/strings"
+	"github.com/renxzen/go-getters/pkg/strutils"
 	"github.com/renxzen/go-getters/pkg/types"
 )
 
@@ -88,7 +88,7 @@ func (g *Generator) generateStructGetters(structInfo *types.StructInfo) {
 // generateFieldGetter generates a getter method for a single field.
 func (g *Generator) generateFieldGetter(structName string, field types.FieldInfo) {
 	getterPrefix := "Get" // TODO: make the prefix configurable
-	getterName := getterPrefix + strings.Capitalize(field.Name)
+	getterName := getterPrefix + strutils.Capitalize(field.Name)
 	zeroValue := field.GetZerovalue()
 
 	// For pointer fields to primitives and specific types, return the dereferenced type

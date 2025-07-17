@@ -7,7 +7,7 @@ import (
 	"go/token"
 	"strings"
 
-	strutil "github.com/renxzen/go-getters/pkg/strings"
+	"github.com/renxzen/go-getters/pkg/strutils"
 	"github.com/renxzen/go-getters/pkg/types"
 )
 
@@ -32,38 +32,15 @@ func (p *Parser) ParseDirectory(path string) (*types.ParseResult, error) {
 
 	imports := make(map[string]*types.ImportInfo)
 	structs := make(map[string]*types.StructInfo)
-	var packageName string
 
+	var packageName string
 	for _, pkg := range pkgs {
 		if packageName == "" {
 			packageName = pkg.Name
 		}
 
 		for _, file := range pkg.Files {
-			// Parse imports
-			for _, imp := range file.Imports {
-				importPath := imp.Path.Value[1 : len(imp.Path.Value)-1] // Remove quotes
-
-				var (
-					alias     string
-					isAliased bool
-				)
-
-				if imp.Name != nil {
-					alias = imp.Name.Name
-					isAliased = true
-				} else {
-					// Extract package name from import path
-					parts := strings.Split(importPath, "/")
-					alias = parts[len(parts)-1]
-				}
-
-				imports[alias] = &types.ImportInfo{
-					Alias:     alias,
-					IsAliased: isAliased,
-					Path:      importPath,
-				}
-			}
+			p.parseImports(file, imports)
 
 			ast.Inspect(file, func(n ast.Node) bool {
 				typeSpec, ok := n.(*ast.TypeSpec)
@@ -118,7 +95,7 @@ func (p *Parser) parseStruct(structName string, structType *ast.StructType) *typ
 func (p *Parser) parseFieldType(fieldName string, fieldType ast.Expr) types.FieldInfo {
 	fieldInfo := types.FieldInfo{
 		Name:       fieldName,
-		IsExported: strutil.IsCapitalized(fieldName),
+		IsExported: strutils.IsCapitalized(fieldName),
 	}
 
 	switch t := fieldType.(type) {
@@ -180,5 +157,32 @@ func (p *Parser) parseExprType(expr ast.Expr) string {
 		return "[]" + elementType
 	default:
 		return "any"
+	}
+}
+
+// parseImports parses import declarations from an AST file and adds them to the imports map.
+func (p *Parser) parseImports(file *ast.File, imports map[string]*types.ImportInfo) {
+	for _, imp := range file.Imports {
+		importPath := imp.Path.Value[1 : len(imp.Path.Value)-1] // Remove quotes
+
+		var (
+			alias     string
+			isAliased bool
+		)
+
+		if imp.Name != nil {
+			alias = imp.Name.Name
+			isAliased = true
+		} else {
+			// Extract package name from import path
+			parts := strings.Split(importPath, "/")
+			alias = parts[len(parts)-1]
+		}
+
+		imports[alias] = &types.ImportInfo{
+			Alias:     alias,
+			IsAliased: isAliased,
+			Path:      importPath,
+		}
 	}
 }
