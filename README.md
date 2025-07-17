@@ -32,7 +32,7 @@ go install github.com/renxzen/go-getters/cmd/go-getters@latest
 
 ```bash
 # Generate getters for specific structs
-go-getters -structs="User,Product" -input=./models -output=./generated/getters.go
+go-getters -structs="User,Product" -input=./models -output=getters.go
 
 # Generate getters for structs in current directory
 go-getters -structs="MyStruct"
@@ -44,7 +44,7 @@ go-getters -help
 #### Command Line Options
 
 - `-input string` - Path to directory containing Go files (default ".")
-- `-output string` - Output file path (default "getters.gen.go")
+- `-output string` - Output file name (default "getters.gen.go"). The file will be created in the input directory.
 - `-structs string` - Comma-separated list of struct names to generate getters for (required)
 - `-help` - Show help message
 
@@ -55,7 +55,7 @@ go-getters -help
 go-getters -structs="User,Product"
 
 # Specify input and output paths
-go-getters -input=./models -output=./generated/getters.go -structs="User,Product,Order"
+go-getters -input=./models -output=getters.go -structs="User,Product,Order"
 ```
 
 ### With go generate
@@ -83,8 +83,8 @@ go generate ./...
 This will automatically generate the getter methods for the specified structs. You can also use multiple generate comments for different structs or configurations:
 
 ```go
-//go:generate go-getters -structs=User,Product -input=./models -output=./generated/user_getters.gen.go
-//go:generate go-getters -structs=Order -input=./models -output=./generated/order_getters.gen.go
+//go:generate go-getters -structs=User,Product -input=./models -output=user_getters.gen.go
+//go:generate go-getters -structs=Order -input=./models -output=order_getters.gen.go
 
 type User struct {
 	ID    int

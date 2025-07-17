@@ -54,11 +54,12 @@ func main() {
 	}
 
 	// Write output
-	if err := os.WriteFile(*outputFile, outBytes, 0644); err != nil {
+	outputFilePath := filepath.Join(*inputPath, filepath.Base(*outputFile))
+	if err := os.WriteFile(outputFilePath, outBytes, 0644); err != nil {
 		log.Fatalf("Failed to write output file: %v", err)
 	}
 
-	fmt.Printf("Generated getters for %d struct(s) in %s\n", len(structs), *outputFile)
+	fmt.Printf("Generated getters for %d struct(s) in %s\n", len(structs), outputFilePath)
 }
 
 func showHelp() {
@@ -71,7 +72,7 @@ Options:
   -input string
         Path to directory containing Go files (default ".")
   -output string
-        Output file name (default "getters.gen.go"). The file should be created in the same directory as the input directory as methods should live in the same package as the struct.
+        Output file name (default "getters.gen.go"). The file will be created in the input directory.
   -structs string
         Comma-separated list of struct names to generate getters for (required)
   -help
