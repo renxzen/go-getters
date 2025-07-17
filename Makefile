@@ -41,7 +41,7 @@ test:
 	go test -cover -v ./...
 
 test/update:
-	go test ./test -update
+	go test -v ./test -update
 
 generate: build
 	go generate ./...

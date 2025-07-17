@@ -108,7 +108,9 @@ func (p *Parser) parseFieldType(fieldName string, fieldType ast.Expr) types.Fiel
 
 		// Preserve other properties from the underlying type
 		fieldInfo.IsSlice = underlyingField.IsSlice
+		fieldInfo.IsMap = underlyingField.IsMap
 		fieldInfo.RequiredImport = underlyingField.RequiredImport
+		fieldInfo.RequiredExtraImport = underlyingField.RequiredExtraImport
 	case *ast.Ident:
 		fieldInfo.Type = t.Name
 		fieldInfo.UnderlyingType = t.Name
@@ -132,6 +134,22 @@ func (p *Parser) parseFieldType(fieldName string, fieldType ast.Expr) types.Fiel
 		// if Slices and Arrays need to be handled differently
 		// we need to check t.Len. if it is nil, it's a slice,
 		// otherwise it's an array
+	case *ast.MapType:
+		mapType := p.parseExprType(t)
+		fieldInfo.Type = mapType
+		fieldInfo.UnderlyingType = mapType
+		fieldInfo.IsMap = true
+
+		// Recursively check for imports in map key and value types
+		keyField := p.parseFieldType("", t.Key)
+		if keyField.RequiredImport != "" {
+			fieldInfo.RequiredImport = keyField.RequiredImport
+		}
+
+		valueField := p.parseFieldType("", t.Value)
+		if valueField.RequiredImport != "" {
+			fieldInfo.RequiredExtraImport = valueField.RequiredImport
+		}
 	default:
 		// Handle other complex types
 		fieldInfo.Type = "any"
@@ -155,6 +173,10 @@ func (p *Parser) parseExprType(expr ast.Expr) string {
 	case *ast.ArrayType:
 		elementType := p.parseExprType(t.Elt)
 		return "[]" + elementType
+	case *ast.MapType:
+		keyType := p.parseExprType(t.Key)
+		valueType := p.parseExprType(t.Value)
+		return fmt.Sprintf("map[%s]%s", keyType, valueType)
 	default:
 		return "any"
 	}

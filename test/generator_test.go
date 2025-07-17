@@ -44,6 +44,11 @@ func TestGenerateGetters(t *testing.T) {
 			structName: "DynamicImports",
 			goldenFile: "dynamic_imports.golden",
 		},
+		{
+			name:       "map_types",
+			structName: "Maps",
+			goldenFile: "map_types.golden",
+		},
 	}
 
 	for _, tt := range tests {

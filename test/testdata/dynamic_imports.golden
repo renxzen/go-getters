@@ -3,7 +3,7 @@
 package testdata
 
 import (
-	"fmt"
+	"container/list"
 	"net/http"
 	"net/url"
 	"os"
@@ -38,9 +38,9 @@ func (x *DynamicImports) GetFiles() []os.File {
 	return nil
 }
 
-func (x *DynamicImports) GetFormatters() []*fmt.Stringer {
+func (x *DynamicImports) GetLists() []*list.List {
 	if x != nil {
-		return x.Formatters
+		return x.Lists
 	}
 	return nil
 }

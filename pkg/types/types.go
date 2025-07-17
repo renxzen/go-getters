@@ -26,7 +26,9 @@ type FieldInfo struct {
 	IsPointer      bool   // Whether the field is a pointer
 	IsExported     bool   // Whether the field is exported
 	IsSlice        bool   // Whether the field is a slice
+	IsMap          bool   // Whether the field is a map
 	RequiredImport string // Import alias for package-qualified types
+	RequiredExtraImport   string // Import alias for map key type
 }
 
 func (f FieldInfo) IsPrimitive() bool {
@@ -51,8 +53,8 @@ func (f FieldInfo) GetZerovalue() string {
 			return "nil"
 		}
 	}
-	// Handle slice types
-	if len(fieldType) > 2 && fieldType[:2] == "[]" {
+	// Handle slice and map types
+	if f.IsSlice || f.IsMap {
 		return "nil"
 	}
 

@@ -121,12 +121,18 @@ func (g *Generator) collectRequiredImports(structs map[string]*types.StructInfo,
 				continue
 			}
 
-			if field.RequiredImport == "" {
+			if field.RequiredImport == "" && field.RequiredExtraImport == "" {
 				continue
 			}
 
 			if importInfo, exists := importsMap[field.RequiredImport]; exists {
 				importSet[importInfo.Alias] = true
+			}
+
+			if field.IsMap {
+				if importInfo, exists := importsMap[field.RequiredExtraImport]; exists {
+					importSet[importInfo.Alias] = true
+				}
 			}
 		}
 	}
