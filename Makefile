@@ -3,6 +3,9 @@ GOBIN=$(GOBASE)/bin
 GOPATHBIN=$(shell go env GOPATH)/bin
 BINARY_NAME=go-getters
 MAIN_PATH=./cmd/go-getters
+COVERAGE_FILE=coverage.out
+COVERAGE_HTML=coverage.html
+
 
 help:
 	@echo "This is a helper makefile for go-getters"
@@ -38,7 +41,10 @@ lint: tools
 
 .PHONY: test
 test:
-	go test -cover -v ./...
+	@echo "Running tests..."
+	go test -race -coverprofile=$(COVERAGE_FILE) ./...
+	go tool cover -html=$(COVERAGE_FILE) -o $(COVERAGE_HTML)
+	@echo "Coverage report generated: $(COVERAGE_HTML)"
 
 test/update:
 	go test -v ./test -update
